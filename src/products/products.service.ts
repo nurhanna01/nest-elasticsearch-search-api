@@ -17,12 +17,68 @@ export class ProductsService {
       const product = await this.productRepo.save(createProductDto);
       await this.es.index({
         index: 'products',
+        id: product.id.toString(),
         document: {
           ...product,
           createdAt: new Date(),
         },
       });
       return 'Add new product successfully';
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async search(param: {
+    keyword: string;
+    status: string;
+    minPrice: number;
+    maxPrice: number;
+  }) {
+    try {
+      const must: any[] = [];
+      const filter: any[] = [];
+
+      if (param.keyword) {
+        must.push({
+          multi_match: {
+            query: param.keyword,
+            fields: ['name', 'description'],
+          },
+        });
+      }
+      if (param.status) {
+        filter.push({
+          term: {
+            status: param.status.toUpperCase(),
+          },
+        });
+      }
+      if (param.minPrice || param.maxPrice) {
+        filter.push({
+          range: {
+            price: { gte: param.minPrice, lte: param.maxPrice },
+          },
+        });
+      }
+
+      const result = await this.es.search({
+        index: 'products',
+        query: {
+          bool: {
+            must: must,
+            filter: filter,
+          },
+        },
+      });
+
+      return result.hits.hits.map((data) => ({
+        id: data._id,
+        data: data._source,
+        score: data._score,
+        lainnya: data,
+      }));
     } catch (error) {
       console.error(error);
       throw error;

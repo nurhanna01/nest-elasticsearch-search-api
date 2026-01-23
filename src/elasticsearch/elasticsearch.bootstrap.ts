@@ -10,6 +10,7 @@ export async function bootstrapProductIndex() {
       index,
       mappings: {
         properties: {
+          id: { type: 'keyword' },
           name: { type: 'text' },
           description: { type: 'text' },
           status: { type: 'keyword' },

@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductSearchDto } from './dto/search-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -19,6 +21,20 @@ export class ProductsController {
   create(@Body() createProductDto: CreateProductDto) {
     try {
       return this.productsService.create(createProductDto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get('search')
+  search(@Query() params: ProductSearchDto) {
+    try {
+      return this.productsService.search({
+        keyword: params.keyword,
+        status: params.status,
+        minPrice: params.minPrice,
+        maxPrice: params.maxPrice,
+      });
     } catch (error) {
       throw error;
     }

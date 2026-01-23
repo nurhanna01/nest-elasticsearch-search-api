@@ -21,8 +21,8 @@ This project is designed as a **portfolio project**
 
 - Bootstrap Elasticsearch index on application startup
 - Create product and index it into Elasticsearch
-- Full-text search using `match` (WIP)
-- Filter by exact values and numeric ranges (WIP)
+- Full-text search using `match`
+- Filter by exact values and numeric ranges
 - Pagination and sorting (WIP)
 
 ---
@@ -40,16 +40,13 @@ Elasticsearch (Search Engine)
 ## Run Elasticsearch (Docker)
 
 ```bash
-docker run -d \
-  -p 9200:9200 \
-  -e "discovery.type=single-node" \
-  docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+docker run -d --name elasticsearch-service -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:8.19.10
 ```
 
 ## Run MySQL (Docker)
 
 ```bash
-
+docker run --name mysql-service -e MYSQL_ROOT_PASSWORD=root -d mysql:latest
 ```
 
 ```bash
