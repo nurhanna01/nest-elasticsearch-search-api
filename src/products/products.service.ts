@@ -77,8 +77,42 @@ export class ProductsService {
         id: data._id,
         data: data._source,
         score: data._score,
-        lainnya: data,
       }));
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    try {
+      const update = await this.productRepo.update(id, updateProductDto);
+      if (update.affected >= 0) {
+        await this.es.update({
+          index: 'products',
+          id: String(id),
+          doc: updateProductDto,
+        });
+        return 'success';
+      }
+      return 'failed';
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      const deleteProduct = await this.productRepo.delete(id);
+      if (deleteProduct.affected > 0) {
+        await this.es.delete({
+          index: 'products',
+          id: String(id),
+        });
+        return 'success';
+      }
+      return 'failed';
     } catch (error) {
       console.error(error);
       throw error;
@@ -91,13 +125,5 @@ export class ProductsService {
 
   findOne(id: number) {
     return `This action returns a #${id} product`;
-  }
-
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} product`;
   }
 }
